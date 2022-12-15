@@ -33,10 +33,46 @@ html {
     /*border: 10px solid #2F5280;*/
 }
 
-.fd-form-item:not(:last-child) {
+.fd-form-item {
     margin-bottom: 16px;
 }
 
 .show-more {
     vertical-align: text-bottom;
+}
+
+input#technician {
+    width: 200px;
+    padding: 5px;
+    font-size: 14px;
+}
+.autocomplete {
+    position: relative;
+    display: inline-block;
+}
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    /*position the autocomplete items to be the same width as the container:*/
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.autocomplete-items div {
+    padding: 5px;
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #d4d4d4;
+}
+.autocomplete-items div:hover,
+.autocomplete-active {
+    background-color: #e9e9e9 !important;
+}
+#technician-duration {
+    margin-top: 10px;
 }
