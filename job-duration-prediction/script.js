@@ -28,7 +28,6 @@ else {
     updatePredictionUI('Unable to reach shell eventAPI');
 }
 
-
 function initializeRefreshTokenStrategy(shellSdk, auth) {
     shellSdk.on(SHELL_EVENTS.Version1.REQUIRE_AUTHENTICATION, (event) => {
         sessionStorage.setItem('token', event.access_token);
@@ -47,6 +46,10 @@ function initializeRefreshTokenStrategy(shellSdk, auth) {
 
 function updatePredictionUI(text = '') {
     document.getElementById('predicted-duration').innerText = text;
+}
+
+function updatePredictionByTechnicianUI(text = '') {
+    document.getElementById('technician-duration').innerText = text;
 }
 
 function updateDurationUI(text = '') {
@@ -113,3 +116,138 @@ function getPrediction() {
             })
     }
 }
+
+function getPredictionByTechnician(technician) {
+    updatePredictionByTechnicianUI(`Loading...`);
+
+    // TODO: get prediction by technician
+
+    const prediction = 100;
+
+    updatePredictionByTechnicianUI(`Prediction for ${technician.fullName} - ${prediction}`);
+}
+
+// Setup technicians autocomplete
+(() => {
+    const input = document.getElementById('technician');
+
+    let currentFocus;
+
+    const fetchTechnicians = async (search) => {
+        const headers = {
+            'Authorization': `bearer ${sessionStorage.getItem('token')}`,
+            'x-request-id': '[value]',
+            'x-client-id': '[value]',
+            'x-client-version': '[value]',
+        };
+        const body = {
+            query: `
+                SELECT  p.firstName, p.lastName, p.id
+                FROM Person p
+                WHERE  p.firstName ilike '%${search}%' or p.lastName ilike '%${search}%'
+                LIMIT 20
+            `
+        };
+        const queryParams = new URLSearchParams({
+            user: '[value]',
+            account: '[value]',
+            company: '[value]',
+            dtos: 'Person.24',
+        }).toString();
+        const url = 'https://qt.dev.coresuite.com/api/data/query/v1?' + queryParams;
+
+        return fetch(url, { method: 'POST', headers, body })
+            .then(response => response.json())
+            .then(res => res?.data?.map(t => ({
+                id: t['p.id'],
+                fullName: `${t['p.firstName']} ${t['p.lastName']}`,
+            })))
+            .catch((err) => console.error(err))
+    }
+
+    function addActive(x) {
+        if (!x) return false;
+        removeActive(x);
+        if (currentFocus >= x.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (x.length - 1);
+        x[currentFocus].classList.add("autocomplete-active");
+    }
+    function removeActive(x) {
+        for (let i = 0; i < x.length; i++) {
+            x[i].classList.remove('autocomplete-active');
+        }
+    }
+    function closeAllLists(element) {
+        const x = document.getElementsByClassName('autocomplete-items');
+        for (let i = 0; i < x.length; i++) {
+            if (element != x[i] && element != input) {
+                x[i].parentNode.removeChild(x[i]);
+            }
+        }
+    }
+
+    input.addEventListener('input', async function() {
+        let options, option, searchValue = this.value.toLowerCase();
+
+        if (searchValue.length < 2) return false;
+
+        closeAllLists();
+        if (!searchValue) return false;
+        currentFocus = -1;
+
+        options = document.createElement('div');
+        options.setAttribute('id', this.id + 'autocomplete-list');
+        options.setAttribute('class', 'autocomplete-items');
+        options.innerHTML = 'Loading...';
+        this.parentNode.appendChild(options);
+
+        try {
+            const results = await fetchTechnicians(this.value);
+            options.innerHTML = '';
+
+            if (!results.length) {
+                options.innerHTML = 'No results found';
+            }
+
+            results.forEach((technician) => {
+                option = document.createElement('div');
+                option.innerHTML = technician.fullName;
+
+                option.addEventListener('click', () => {
+                    closeAllLists();
+                    getPredictionByTechnician(technician)
+                });
+                options.appendChild(option);
+            })
+        } catch (e) {
+            console.error('Error while fetching technicians from QueryAPI')
+        }
+    });
+    input.addEventListener('keydown', function(e) {
+        let x = document.getElementById(this.id + 'autocomplete-list');
+        if (x) x = x.getElementsByTagName("div");
+
+        switch (e.key) {
+            case 'ArrowDown': {
+                currentFocus++;
+                addActive(x);
+                break;
+            }
+            case 'ArrowUp': {
+                currentFocus--;
+                addActive(x);
+                break;
+            }
+            case 'Enter': {
+                e.preventDefault();
+                if (currentFocus > -1) {
+                    if (x) x[currentFocus].click();
+                }
+                break;
+            }
+        }
+    });
+
+    document.addEventListener('click', (e) => closeAllLists(e.target));
+})()
+
