@@ -216,6 +216,7 @@ function getPredictionByTechnician(technician) {
                 option.innerHTML = technician.fullName;
 
                 option.addEventListener('click', () => {
+                    input.value = technician.fullName;
                     closeAllLists();
                     getPredictionByTechnician(technician)
                 });
