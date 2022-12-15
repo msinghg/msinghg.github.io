@@ -136,6 +136,7 @@ function getPredictionByTechnician(technician) {
     const fetchTechnicians = async (search) => {
         const headers = {
             'Authorization': `bearer ${sessionStorage.getItem('token')}`,
+            //TODO: Update [value] with values from auth context
             'x-request-id': '[value]',
             'x-client-id': '[value]',
             'x-client-version': '[value]',
@@ -149,6 +150,7 @@ function getPredictionByTechnician(technician) {
             `
         };
         const queryParams = new URLSearchParams({
+            //TODO: Update [value] with values from auth context
             user: '[value]',
             account: '[value]',
             company: '[value]',
