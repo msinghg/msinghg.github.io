@@ -140,6 +140,7 @@ function getPredictionByTechnician(technician) {
             'x-request-id': '[value]',
             'x-client-id': '[value]',
             'x-client-version': '[value]',
+            'Content-Type': 'application/json',
         };
         const body = {
             query: `
@@ -158,11 +159,11 @@ function getPredictionByTechnician(technician) {
         }).toString();
         const url = 'https://qt.dev.coresuite.com/api/data/query/v1?' + queryParams;
 
-        return fetch(url, { method: 'POST', headers, body })
+        return fetch(url, {method: 'POST', headers, body: JSON.stringify(body)})
             .then(response => response.json())
-            .then(res => res?.data?.map(t => ({
-                id: t['p.id'],
-                fullName: `${t['p.firstName']} ${t['p.lastName']}`,
+            .then(res => res?.data?.map(({p} = {}) => ({
+                id: p.id,
+                fullName: `${p.firstName} ${p.lastName}`,
             })))
             .catch((err) => console.error(err))
     }
