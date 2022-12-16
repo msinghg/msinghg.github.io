@@ -144,7 +144,7 @@ function getPredictionByTechnician(technician) {
         };
         const body = {
             query: `
-                SELECT  p.firstName, p.lastName, p.id
+                SELECT  p.firstName, p.lastName, p.id, p.emailAddress
                 FROM Person p
                 WHERE  p.firstName ilike '%${search}%' or p.lastName ilike '%${search}%'
                 LIMIT 20
@@ -164,6 +164,7 @@ function getPredictionByTechnician(technician) {
             .then(res => res?.data?.map(({p} = {}) => ({
                 id: p.id,
                 fullName: `${p.firstName} ${p.lastName}`,
+                email: p.emailAddress,
             })))
             .catch((err) => console.error(err))
     }
@@ -215,6 +216,7 @@ function getPredictionByTechnician(technician) {
             results.forEach((technician) => {
                 option = document.createElement('div');
                 option.innerHTML = technician.fullName;
+                option.setAttribute('title', technician.email);
 
                 option.addEventListener('click', () => {
                     input.value = technician.fullName;
