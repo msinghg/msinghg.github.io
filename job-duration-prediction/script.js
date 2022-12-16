@@ -140,12 +140,14 @@ function getPredictionByTechnician(technician) {
             'x-request-id': '[value]',
             'x-client-id': '[value]',
             'x-client-version': '[value]',
+            'Content-Type': 'application/json',
         };
         const body = {
             query: `
-                SELECT  p.firstName, p.lastName, p.id
+                SELECT  p.firstName, p.lastName, p.id, p.emailAddress
                 FROM Person p
                 WHERE  p.firstName ilike '%${search}%' or p.lastName ilike '%${search}%'
+                ORDER BY p.firstName, p.lastName ASC
                 LIMIT 20
             `
         };
@@ -158,11 +160,12 @@ function getPredictionByTechnician(technician) {
         }).toString();
         const url = 'https://qt.dev.coresuite.com/api/data/query/v1?' + queryParams;
 
-        return fetch(url, { method: 'POST', headers, body })
+        return fetch(url, {method: 'POST', headers, body: JSON.stringify(body)})
             .then(response => response.json())
-            .then(res => res?.data?.map(t => ({
-                id: t['p.id'],
-                fullName: `${t['p.firstName']} ${t['p.lastName']}`,
+            .then(res => res?.data?.map(({p} = {}) => ({
+                id: p.id,
+                fullName: `${p.firstName} ${p.lastName}`,
+                email: p.emailAddress,
             })))
             .catch((err) => console.error(err))
     }
@@ -214,6 +217,7 @@ function getPredictionByTechnician(technician) {
             results.forEach((technician) => {
                 option = document.createElement('div');
                 option.innerHTML = technician.fullName;
+                option.setAttribute('title', technician.email);
 
                 option.addEventListener('click', () => {
                     input.value = technician.fullName;
