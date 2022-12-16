@@ -147,6 +147,7 @@ function getPredictionByTechnician(technician) {
                 SELECT  p.firstName, p.lastName, p.id, p.emailAddress
                 FROM Person p
                 WHERE  p.firstName ilike '%${search}%' or p.lastName ilike '%${search}%'
+                ORDER BY p.firstName, p.lastName ASC
                 LIMIT 20
             `
         };
