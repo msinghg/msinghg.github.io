@@ -130,16 +130,17 @@ function getPredictionByTechnician(technician) {
 // Setup technicians autocomplete
 (() => {
     const input = document.getElementById('technician');
+    const event = sessionStorage.getItem('event');
+    const { user, account, company } = JSON.parse(event);
 
     let currentFocus;
 
     const fetchTechnicians = async (search) => {
         const headers = {
             'Authorization': `bearer ${sessionStorage.getItem('token')}`,
-            //TODO: Update [value] with values from auth context
-            'x-request-id': '[value]',
-            'x-client-id': '[value]',
-            'x-client-version': '[value]',
+            'x-request-id': '1',
+            'x-client-id': 'fsm-extension-sample',
+            'x-client-version': '1.0.0',
             'Content-Type': 'application/json',
         };
         const body = {
@@ -153,9 +154,9 @@ function getPredictionByTechnician(technician) {
         };
         const queryParams = new URLSearchParams({
             //TODO: Update [value] with values from auth context
-            user: '[value]',
-            account: '[value]',
-            company: '[value]',
+            user: user,
+            account: account,
+            company: company,
             dtos: 'Person.24',
         }).toString();
         const url = 'https://qt.dev.coresuite.com/api/data/query/v1?' + queryParams;
