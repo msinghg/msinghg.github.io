@@ -120,18 +120,49 @@ function getPrediction() {
 function getPredictionByTechnician(technician) {
     updatePredictionByTechnicianUI(`Loading...`);
 
-    // TODO: get prediction by technician
+    const event = sessionStorage.getItem('event');
+    const { cloudHost, account, accountId, company, companyId, user, userId, auth } = JSON.parse(event);
+    const activityID = sessionStorage.getItem('activityID');
+    console.log('Loading prediction for activityid...', activityID);
 
-    const prediction = 100;
+    if (activityID) {
+        const headers = {
+            'Authorization': `bearer ${sessionStorage.getItem('token')}`,
+            'x-account-id': accountId,
+            'x-account-name': account,
+            'x-company-id': companyId,
+            'x-company-name': company,
+            'x-user-id': userId,
+            'x-user-name': user,
+            'x-client-version': 'a',
+            'x-cloud-host': cloudHost,
+            'activity-id': activityID,
+            'x-request-id': '1',
+            
+        };
+        
+        const url = `https://ingress.qt-1.coreinfra.io/job-duration-inference/portal/predict?resource_id=${technician.id}`;
 
-    updatePredictionByTechnicianUI(`Prediction for ${technician.fullName} - ${prediction}`);
+
+        fetch(url, { headers })
+            .then(response => response.json())
+            .then(res => {
+                
+                updatePredictionByTechnicianUI(JSON.stringify(res, undefined, 2));
+            })
+            .catch((err) => {
+                updatePredictionByTechnicianUI(err);
+            })
+    }
 }
+
+
+   
+
 
 // Setup technicians autocomplete
 (() => {
     const input = document.getElementById('technician');
-    const event = sessionStorage.getItem('event');
-    const { user, account, company } = JSON.parse(event);
 
     let currentFocus;
 
@@ -139,10 +170,13 @@ function getPredictionByTechnician(technician) {
         const headers = {
             'Authorization': `bearer ${sessionStorage.getItem('token')}`,
             'x-request-id': '1',
-            'x-client-id': 'fsm-extension-sample',
-            'x-client-version': '1.0.0',
+            'X-Client-ID': 'fsm-extension-sample',
+            'X-Client-Version': '1.0.0',
             'Content-Type': 'application/json',
+            
         };
+        const event = sessionStorage.getItem('event');
+        const { user, account, company } = JSON.parse(event);
         const body = {
             query: `
                 SELECT  p.firstName, p.lastName, p.id, p.emailAddress
@@ -153,7 +187,6 @@ function getPredictionByTechnician(technician) {
             `
         };
         const queryParams = new URLSearchParams({
-            //TODO: Update [value] with values from auth context
             user: user,
             account: account,
             company: company,
@@ -217,11 +250,11 @@ function getPredictionByTechnician(technician) {
 
             results.forEach((technician) => {
                 option = document.createElement('div');
-                option.innerHTML = technician.fullName;
+                option.innerHTML = technician.email;
                 option.setAttribute('title', technician.email);
 
                 option.addEventListener('click', () => {
-                    input.value = technician.fullName;
+                    input.value = technician.email;
                     closeAllLists();
                     getPredictionByTechnician(technician)
                 });
@@ -258,4 +291,3 @@ function getPredictionByTechnician(technician) {
 
     document.addEventListener('click', (e) => closeAllLists(e.target));
 })()
-
