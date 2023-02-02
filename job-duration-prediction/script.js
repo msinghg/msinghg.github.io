@@ -148,7 +148,7 @@ function getPredictionByTechnician(technician) {
             .then(response => response.json())
             .then(res => {
                 
-                updatePredictionByTechnicianUI(JSON.stringify(res, undefined, 2));
+                updatePredictionByTechnicianUI(JSON.stringify(res, undefined, 2).replace(/[",{}]/g, ''));
             })
             .catch((err) => {
                 updatePredictionByTechnicianUI(err);
