@@ -1,0 +1,12 @@
+{
+  "watch": ["src"],
+  "ext": "ts",
+  "ignore": ["src/**/*.spec.ts"],
+  "exec": "ts-node -r tsconfig-paths/register src/app.ts",
+  "env": {
+    "PORT": 8016,
+    "LOCAL_TRANSLATIONS": true,
+    "PROMETHEUS_USERNAME": "test",
+    "PROMETHEUS_PASSWORD": "test"
+  }
+}

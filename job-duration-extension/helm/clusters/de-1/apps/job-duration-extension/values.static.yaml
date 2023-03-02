@@ -1,0 +1,20 @@
+replicaCount: 2
+
+ingress:
+  enabled: true
+  path:
+    - /fsm-extensions/job-duration-extension/
+    - /fsm-extensions/job-duration-extension/(.*)
+  hosts:
+    - de.coresystems.net
+
+internalingress:
+  hosts:
+    - ingress.de-1.coreinfra.io
+
+env:
+  NODEJS_ENV_START_CONFIG: "config/env-de.json"
+  LOGSTASH_HOSTS: "sh1aelks.coresuite.com,sh2belks.coresuite.com"
+
+istio:
+  enabled: true

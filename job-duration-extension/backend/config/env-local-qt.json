@@ -1,0 +1,8 @@
+{
+  "dataCloudHost": "https://ingress.qt-1.coreinfra.io",
+  "masterAPIHost": "https://ingress.qt-1.coreinfra.io",
+  "listenPort": 8001,
+  "mode": "development",
+  "logLevel": "debug",
+  "internalExtensionCatalogServiceURL": "https://ingress.qt-1.coreinfra.io/cloud-extension-catalog-service"
+}

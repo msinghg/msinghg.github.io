@@ -1,0 +1,30 @@
+replicaCount: 2
+
+image:
+  frontend:
+    repository: iregistrycn.dev.coresuite.com/job-duration-extension-frontend
+    tag: auto-filled-by-pipeline
+    pullPolicy: IfNotPresent
+  backend:
+    repository: iregistrycn.dev.coresuite.com/job-duration-extension-backend
+    tag: auto-filled-by-pipeline
+    pullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  path:
+    - /fsm-extensions/job-duration-extension/
+    - /fsm-extensions/job-duration-extension/(.*)
+  hosts:
+    - cn.coresystems.net
+
+internalingress:
+  hosts:
+    - ingress.cn-1.coreinfra.io
+
+env:
+  NODEJS_ENV_START_CONFIG: "config/env-cn.json"
+  LOGSTASH_HOSTS: "sh1aelks.coresuite.com,sh2belks.coresuite.com"
+
+istio:
+  enabled: true

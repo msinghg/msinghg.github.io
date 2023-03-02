@@ -1,0 +1,9 @@
+{
+  "appConfig": {
+    "application_name": "job-duration-extension",
+    "application_short_name": "JDE",
+    "clientIdentifier": "job-duration-extension",
+    "clientSecret": "use-backend",
+    "version": "1.0.0-rc0"
+  }
+}

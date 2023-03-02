@@ -1,0 +1,34 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.enterprise.mesh.gloo.solo.io/v1beta1
+kind: RouteTable
+metadata:
+  name: {{ template "job-duration-extension.name" . }}-route-table
+  namespace: gloo-mesh
+spec:
+  routes:
+    - matchers:
+        - uri:
+            prefix: /{{ template "job-duration-extension.name" . }}/
+      name: {{ template "job-duration-extension.name" . }}
+      routeAction:
+        pathRewrite: /
+        destinations:
+          - kubeService:
+              clusterName: cluster1
+              name: {{ template "job-duration-extension.name" . }}
+              namespace: default
+      options:
+        rateLimit:
+          ratelimitServerConfigSelector:
+            namespaces:
+              - gloo-mesh
+            labels:
+              ratelimit: "500"
+          raw:
+            rateLimits:
+              - setActions:
+                  - destinationCluster: {}
+                  - requestHeaders:
+                      descriptorKey: user-identity
+                      headerName: Authorization
+{{- end }}

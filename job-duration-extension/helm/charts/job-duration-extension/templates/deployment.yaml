@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "job-duration-extension.fullname" . }}
+  labels:
+    app: {{ template "job-duration-extension.name" . }}
+    chart: {{ template "job-duration-extension.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    maintainer_team: {{ .Values.maintainerTeam }}
+    {{- if .Values.istio.enabled }}
+    sidecar.istio.io/inject: "true"
+    {{- end }}
+spec:
+  revisionHistoryLimit: 1
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "job-duration-extension.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+      {{ include "vault.injector.annotations" . | nindent 8 }}
+      {{- range $key, $value := .Values.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+      {{- if .Values.istio.enabled }}
+        prometheus.istio.io/merge-metrics: "false"
+      {{- end }}
+      labels:
+        app: {{ template "job-duration-extension.name" . }}
+        release: {{ .Release.Name }}
+        maintainer_team: {{ .Values.maintainerTeam }}
+        sre: {{ .Values.maintainerTeam }}
+        {{- if .Values.istio.enabled }}
+        sidecar.istio.io/inject: "true"
+        {{- end }}
+    spec:
+      {{- include "vault.injector.service-account" . | nindent 6 }}
+      initContainers:
+        - name: create-log-dir
+          imagePullPolicy: IfNotPresent
+          image: registry.dev.coresuite.com/library/busybox:1.32.0
+          command: [
+            'sh',
+            '-c',
+            "mkdir -p /log && chmod 777 /log"
+          ]
+          volumeMounts:
+          - name: log
+            mountPath: /log/
+            readOnly: false
+      imagePullSecrets:
+        - name: csregistry
+        - name: sap-fsm-docker-registry
+      volumes:
+        - name: log
+          hostPath:
+            path: "/var/log/custom/{{ .Values.env.APP_NAME }}"
+            type: DirectoryOrCreate
+      containers:
+        - name: frontend
+          image: "{{ .Values.image.frontend.repository }}:{{ .Values.image.frontend.tag }}"
+          imagePullPolicy: {{ .Values.image.frontend.pullPolicy }}
+          env:
+            - name: APP_NAME
+              value: {{ .Values.env.APP_NAME }}
+            - name: APP_VERSION
+              value: {{ .Values.env.APP_VERSION }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /portal/status
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 2
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /portal/status
+              port: http
+            initialDelaySeconds: 40
+          volumeMounts:
+            - mountPath: /log
+              name: log
+          resources:
+{{ toYaml .Values.resources.frontend | indent 12 }}
+        - name: backend
+          image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+          imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+          env:
+            - name: NODEJS_ENV_START_CONFIG
+              value: {{ .Values.env.NODEJS_ENV_START_CONFIG }}
+            - name: APP_NAME
+              value: {{ .Values.env.APP_NAME }}
+            - name: APP_VERSION
+              value: {{ .Values.env.APP_VERSION }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /portal/status
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 2
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /portal/status
+              port: http
+            initialDelaySeconds: 60
+          volumeMounts:
+            - mountPath: /log
+              name: log
+          resources:
+{{ toYaml .Values.resources.backend | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

@@ -1,0 +1,8 @@
+{
+  "dataCloudHost": "http://data",
+  "masterAPIHost": "http://master",
+  "listenPort": 8000,
+  "mode": "production",
+  "logLevel": "info",
+  "internalExtensionCatalogServiceURL": "http://cloud-extension-catalog-service"
+}

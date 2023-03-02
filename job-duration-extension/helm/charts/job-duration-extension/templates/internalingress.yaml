@@ -1,0 +1,61 @@
+{{- if .Values.internalingress -}}
+{{- $fullName := include "job-duration-extension.fullname" . -}}
+{{- $servicePort := .Values.service.port -}}
+{{- $ingressPaths := .Values.internalingress.path -}}
+{{- $istioEnabled := .Values.istio.enabled -}}
+{{- $annotations := .Values.ingress.annotations -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-internal
+  labels:
+    app: {{ template "job-duration-extension.name" . }}
+    chart: {{ template "job-duration-extension.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+  {{- if not $istioEnabled }}
+    nginx.ingress.kubernetes.io/rewrite-target: "/$1"
+  {{- end }}
+{{- with $annotations }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+{{- if .Values.internalingress.tls }}
+  tls:
+  {{- range .Values.internalingress.tls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+{{- end }}
+  rules:
+    {{- range .Values.internalingress.hosts }}
+    - host: {{ . }}
+      http:
+        paths:
+        {{- if $istioEnabled }}
+          {{- range $ingressPaths }}
+          - path: {{ . }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: istio-ingressgateway
+                port:
+                  number: 80
+          {{- end }}
+        {{ else }}
+          {{- range  $ingressPaths }}
+          - path: {{ . }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  name: http
+          {{- end }}
+        {{- end }}
+    {{- end }}
+{{- end }}

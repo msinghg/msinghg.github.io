@@ -1,0 +1,8 @@
+{
+  "dataCloudHost": "https://us.coresuite.com",
+  "masterAPIHost": "https://us.coresuite.com",
+  "listenPort": 8001,
+  "mode": "development",
+  "logLevel": "debug",
+  "internalExtensionCatalogServiceURL": "https://us.coresystems.net/cloud-extension-catalog-service"
+}
