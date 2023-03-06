@@ -1,9 +1,7 @@
 {
-  "appConfig": {
-    "application_name": "job-duration-extension",
-    "application_short_name": "JDE",
-    "clientIdentifier": "job-duration-extension",
-    "clientSecret": "use-backend",
-    "version": "1.0.0-rc0"
-  }
+  "name": "Job Duration Prediction",
+  "provider": "SAP FSM",
+  "description": "Sample extension to predict job duration prediction using backend prediction Service",   
+  "version": "1.0.0", 
+  "icon": "https://raw.githubusercontent.com/SAP-samples/fsm-extension-sample/refactor/samples/service-contract/icon.png"
 }
