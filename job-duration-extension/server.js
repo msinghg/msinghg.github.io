@@ -2,22 +2,19 @@ require('dotenv').config();
 const path = require('path');
 
 const PORT = process.env.PORT || 8080;
-const {
-  SECRET_KEY
-} = process.env;
-
-if (!SECRET_KEY) {
-  throw new Error('Missing env.SECRET_KEY to generate token');
-}
 
 var express = require('express')
-  , backend = require('./backend');
+  , backend = require('./backend/src');
 
 const app = express();
 
 app.use(backend.initialize());
 
 // Deliver static files as frontend
-app.use(express.static('frontend'));
+
+app.use('/configure', express.static(__dirname + '/configure'));
+app.use('/configure-popup', express.static(__dirname + '/configure-popup'));
+app.use(express.static(__dirname + '/frontend'));
+app.use('/', express.static('frontend/src/'));
 
 app.listen(PORT, () => console.log(`App listening on port ${PORT}!`));

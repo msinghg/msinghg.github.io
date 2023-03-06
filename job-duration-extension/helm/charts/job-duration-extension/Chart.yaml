@@ -5,4 +5,4 @@ name: job-duration-extension
 fullname: job-duration-extension
 businessComponent: CEC-SRV-FSM-EXT
 businessCategory: non-critical
-version: 0.1.0
+version: 1.0.0

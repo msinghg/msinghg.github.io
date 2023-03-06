@@ -1,0 +1,20 @@
+{
+  "/extension-management/portal/*": {
+    "target": "http://localhost:8016",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/extension-management": ""
+    }
+  },
+  "/extension-management/api/*": {
+    "target": "http://localhost:8016",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/extension-management": ""
+    }
+  }
+}

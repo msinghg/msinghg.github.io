@@ -4,33 +4,20 @@
 
 replicaCount: 1
 
-maintainerTeam: "roadrunner"
+maintainerTeam: "Jupyter"
 
 image:
   frontend:
-    repository: registry.dev.coresuite.com/job-duration-extension-frontend
-    tag: auto-filled-by-pipeline
-    pullPolicy: IfNotPresent
-  backend:
-    repository: registry.dev.coresuite.com/job-duration-extension-backend
-    tag: auto-filled-by-pipeline
-    pullPolicy: IfNotPresent
-
+  repository: registry.dev.coresuite.com/job-duration-extension
+  tag: auto-filled-by-pipeline
+  pullPolicy: IfNotPresent
 resources:
-  frontend:
-    limits:
-      memory: 100Mi
-      cpu: 150m
-    requests:
-      memory: 100Mi
-      cpu: 100m
-  backend:
-    limits:
-      memory: 1500Mi
-      cpu: 1000m
-    requests:
-      memory: 1000Mi
-      cpu: 500m
+  limits:
+    memory: 100Mi
+    cpu: 150m
+  requests:
+    memory: 100Mi
+    cpu: 100m
 
 vault:
   enabled: true

@@ -61,8 +61,8 @@ spec:
             type: DirectoryOrCreate
       containers:
         - name: frontend
-          image: "{{ .Values.image.frontend.repository }}:{{ .Values.image.frontend.tag }}"
-          imagePullPolicy: {{ .Values.image.frontend.pullPolicy }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.frontend.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: APP_NAME
               value: {{ .Values.env.APP_NAME }}
@@ -89,39 +89,7 @@ spec:
             - mountPath: /log
               name: log
           resources:
-{{ toYaml .Values.resources.frontend | indent 12 }}
-        - name: backend
-          image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
-          imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
-          env:
-            - name: NODEJS_ENV_START_CONFIG
-              value: {{ .Values.env.NODEJS_ENV_START_CONFIG }}
-            - name: APP_NAME
-              value: {{ .Values.env.APP_NAME }}
-            - name: APP_VERSION
-              value: {{ .Values.env.APP_VERSION }}
-          ports:
-            - name: http
-              containerPort: 8000
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /portal/status
-              port: http
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            failureThreshold: 2
-            timeoutSeconds: 2
-          readinessProbe:
-            httpGet:
-              path: /portal/status
-              port: http
-            initialDelaySeconds: 60
-          volumeMounts:
-            - mountPath: /log
-              name: log
-          resources:
-{{ toYaml .Values.resources.backend | indent 12 }}
+{{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}

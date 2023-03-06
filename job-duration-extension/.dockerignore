@@ -1,5 +1,3 @@
-frontend/*
-backend/*
-demo-extensions/*
-!frontend/release
-!backend/release
+node_modules
+helm
+

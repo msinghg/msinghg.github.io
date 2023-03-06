@@ -10,27 +10,33 @@ shellSdk.emit(SHELL_EVENTS.Version1.REQUIRE_CONTEXT, {
 });
 
 shellSdk.on(SHELL_EVENTS.Version1.REQUIRE_CONTEXT, async (event) => {
+  console.log('Shell context callback call');
+  console.log(event);
 
-  const { cloudHost, account } = JSON.parse(event);
+  try {
+    const { cloudHost, account } = JSON.parse(event || {cloudHost: 'host', account: 'acc'});
 
-  configureButton.disabled = false;
+    configureButton.disabled = false;
 
-  openPopup = () => {
-    console.log('openPopup')
+    openPopup = () => {
+      console.log('openPopup')
 
-    const url = `../configure-popup/configure-popup.html?cloudHost=${cloudHost}&account=${account}`;
+      const url = `../configure-popup/configure-popup.html?cloudHost=${cloudHost}&account=${account}`;
 
-    const popup = window.open(url, 'configure-popup', 'height=500,width=400');
+      const popup = window.open(url, 'configure-popup', 'height=500,width=400');
 
-    window.focus && popup.focus();
+      window.focus && popup.focus();
 
-    // When popup close, we refresh the extension to check if configuration went well
-    popup.onbeforeunload = () => {
-      window.location.href = '/';
+      // When popup close, we refresh the extension to check if configuration went well
+      popup.onbeforeunload = () => {
+        window.location.href = '/';
+      }
+
+      return false;
     }
-
-    return false;
+  } catch (e) {
+    console.error(e);
   }
+  configureButton.addEventListener('click', openPopup, false);
 });
 
-configureButton.addEventListener('click', openPopup, false);
